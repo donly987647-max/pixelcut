@@ -44,6 +44,10 @@ nav ul a:hover{background:var(--bg)}
 /* ★ 드롭존 - input 분리 */
 .drop-zone{border:2px dashed var(--border);border-radius:12px;padding:36px 20px;text-align:center;background:var(--bg);transition:all .2s;cursor:pointer}
 .drop-zone.over{border-color:var(--accent);background:rgba(37,99,255,.05)}
+/* ★ 드롭존 자식 요소 pointer-events none → 드롭 이벤트가 부모 zone으로 올라감 */
+.drop-zone *{pointer-events:none}
+/* 버튼만 클릭 가능하게 다시 활성화 */
+.drop-zone .btn-pick{pointer-events:auto}
 .drop-ico{font-size:2.2rem;margin-bottom:10px}
 .drop-t{font-weight:700;font-size:.95rem;margin-bottom:5px}
 .drop-s{color:var(--ink2);font-size:.82rem;margin-bottom:14px}
@@ -525,31 +529,28 @@ function show(id){
 }
 
 // ── 드래그앤드롭 설정 ──
-// ★ 핵심: input과 완전히 분리된 div에만 이벤트 등록
+// ★ document 레벨에서 drop 감지 후 어느 존인지 판단
+var _dropZones = {};
+
 function setupDrop(zoneId, onFiles){
+  _dropZones[zoneId] = onFiles;
   var zone = document.getElementById(zoneId);
 
-  zone.addEventListener('dragenter', function(e){
-    e.preventDefault(); e.stopPropagation();
-    zone.classList.add('over');
-  });
-  zone.addEventListener('dragover', function(e){
-    e.preventDefault(); e.stopPropagation();
-    zone.classList.add('over');
-  });
+  // 드롭존 위에 있을 때 하이라이트
+  zone.addEventListener('dragenter', function(e){ e.preventDefault(); zone.classList.add('over'); });
+  zone.addEventListener('dragover',  function(e){ e.preventDefault(); zone.classList.add('over'); });
   zone.addEventListener('dragleave', function(e){
-    e.stopPropagation();
-    // 자식 요소로 이동할 때 leave가 발생하지 않도록
-    if(!zone.contains(e.relatedTarget)){
-      zone.classList.remove('over');
-    }
+    if(!zone.contains(e.relatedTarget)) zone.classList.remove('over');
   });
   zone.addEventListener('drop', function(e){
     e.preventDefault(); e.stopPropagation();
     zone.classList.remove('over');
-    var files = Array.from(e.dataTransfer.files).filter(function(f){
-      return f.type.startsWith('image/');
-    });
+    // ★ e.dataTransfer.files 를 즉시 Array로 복사 (이벤트 끝나면 소멸)
+    var files = [];
+    var items = e.dataTransfer.files;
+    for(var i=0; i<items.length; i++){
+      if(items[i].type.startsWith('image/')) files.push(items[i]);
+    }
     if(files.length > 0){
       onFiles(files);
     } else {
@@ -557,6 +558,10 @@ function setupDrop(zoneId, onFiles){
     }
   });
 }
+
+// 페이지 전체 dragover/drop 기본 동작 막기 (브라우저가 파일 열어버리는 것 방지)
+document.addEventListener('dragover', function(e){ e.preventDefault(); });
+document.addEventListener('drop', function(e){ e.preventDefault(); });
 
 // ════════════════════════════════════
 // 🗜️ 압축
