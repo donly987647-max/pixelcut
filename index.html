@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixelCut — 무료 이미지 편집 도구 | Free Image Tools</title>
+<meta name="description" content="배경 제거, 이미지 리사이즈를 무료 무제한으로. 설치 없이 브라우저에서 바로 사용.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f7f5f0; --bg2:#edeae2; --ink:#1a1814; --ink2:#5a564e;
+  --accent:#2563ff; --green:#16a34a; --border:#d4d0c8;
+  --white:#fff; --shadow:0 2px 16px rgba(26,24,20,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans KR',sans-serif}
+
+.topbar{background:var(--ink);color:var(--bg);text-align:center;padding:9px;font-size:.78rem;letter-spacing:.04em}
+.topbar span{color:#fbbf24}
+
+nav{background:var(--white);border-bottom:1.5px solid var(--border);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:200}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.08em;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:8px}
+.logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.85rem}
+nav ul{display:flex;list-style:none}
+nav ul a{color:var(--ink2);text-decoration:none;font-size:.85rem;padding:8px 16px;border-radius:6px;transition:background .15s,color .15s;font-weight:500}
+nav ul a:hover{background:var(--bg);color:var(--ink)}
+.lang-toggle{display:flex;gap:4px;background:var(--bg2);border-radius:6px;padding:3px}
+.lang-btn{border:none;background:transparent;padding:5px 10px;border-radius:4px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;color:var(--ink2);transition:all .15s}
+.lang-btn.active{background:var(--white);color:var(--accent);box-shadow:var(--shadow)}
+
+.hero{padding:70px 40px 40px;text-align:center;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(37,99,255,.06) 0%,transparent 70%)}
+.hero-chip{display:inline-flex;align-items:center;gap:6px;background:var(--white);border:1.5px solid var(--border);border-radius:100px;padding:5px 14px;font-size:.75rem;font-family:'DM Mono',monospace;color:var(--accent);margin-bottom:24px}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,8vw,7rem);letter-spacing:.04em;line-height:.95;margin-bottom:16px}
+.hero h1 .blue{color:var(--accent)}
+.hero-sub{font-size:1rem;color:var(--ink2);max-width:500px;margin:0 auto 32px;line-height:1.7}
+.hero-tools{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.tool-btn{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:12px 22px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;color:var(--ink);transition:all .2s;display:flex;align-items:center;gap:8px}
+.tool-btn:hover,.tool-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(37,99,255,.04);transform:translateY(-2px);box-shadow:var(--shadow)}
+.hero-note{font-size:.78rem;color:#999;font-family:'DM Mono',monospace}
+
+.ad-slot{background:var(--bg2);border:1.5px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#bbb;font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.08em}
+.ad-banner{height:90px;margin:0 40px}
+.ad-rect{width:300px;height:250px;flex-shrink:0}
+
+.tool-section{padding:40px;display:none}
+.tool-section.active{display:block}
+.tool-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;max-width:1100px;margin:0 auto;align-items:start}
+
+.tool-main{background:var(--white);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.tool-header{padding:20px 24px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.tool-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.06em}
+.badge-live{background:rgba(22,163,74,.1);color:var(--green);font-family:'DM Mono',monospace;font-size:.7rem;padding:4px 10px;border-radius:100px;display:flex;align-items:center;gap:5px}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.tool-body{padding:24px}
+
+/* 무료 배지 */
+.free-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(22,163,74,.08);border:1.5px solid rgba(22,163,74,.25);border-radius:8px;padding:10px 16px;margin-bottom:20px;font-size:.82rem;color:var(--green);font-weight:600;width:100%}
+
+.dropzone{border:2px dashed var(--border);border-radius:12px;padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);position:relative}
+.dropzone:hover,.dropzone.dragover{border-color:var(--accent);background:rgba(37,99,255,.04)}
+.dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-icon{font-size:2.5rem;margin-bottom:12px}
+.drop-title{font-weight:700;font-size:1rem;margin-bottom:6px}
+.drop-sub{color:var(--ink2);font-size:.83rem}
+.drop-formats{margin-top:12px;font-family:'DM Mono',monospace;font-size:.72rem;color:#aaa}
+
+.preview-area{display:none}
+.preview-area.show{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.preview-box{border:1.5px solid var(--border);border-radius:10px;overflow:hidden}
+.preview-label{padding:8px 14px;font-size:.75rem;font-family:'DM Mono',monospace;color:var(--ink2);border-bottom:1px solid var(--border);font-weight:500;display:flex;align-items:center;justify-content:space-between}
+.preview-img-wrap{min-height:160px;display:flex;align-items:center;justify-content:center;padding:12px;background:var(--bg)}
+.checker{background:repeating-conic-gradient(#ccc 0% 25%,transparent 0% 50%) 0 0/16px 16px!important}
+.preview-img-wrap img{max-width:100%;max-height:200px;object-fit:contain;border-radius:4px}
+
+.btn-process{width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:14px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-process:hover:not(:disabled){background:#1d4fd8;transform:translateY(-1px);box-shadow:0 4px 16px rgba(37,99,255,.3)}
+.btn-process:disabled{background:#ccc;cursor:not-allowed}
+.btn-dl{width:100%;background:var(--green);color:#fff;border:none;border-radius:10px;padding:14px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s;margin-top:8px;display:none;align-items:center;justify-content:center;gap:8px}
+.btn-dl.show{display:flex}
+.btn-dl:hover{filter:brightness(1.08)}
+.btn-reset{background:none;border:none;color:var(--ink2);font-size:.82rem;cursor:pointer;padding:4px;font-family:'Noto Sans KR',sans-serif;margin-top:6px;display:none}
+.btn-reset.show{display:block}
+
+.progress-wrap{display:none;margin-top:14px}
+.progress-wrap.show{display:block}
+.progress-bar-bg{background:var(--bg2);border-radius:100px;height:6px;overflow:hidden}
+.progress-bar-fill{height:100%;background:var(--accent);border-radius:100px;width:0%;transition:width .4s}
+.progress-text{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--ink2);margin-top:6px;text-align:center}
+
+.controls{margin-top:20px}
+.control-group{margin-bottom:16px}
+.control-label{font-size:.82rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.control-label span{font-family:'DM Mono',monospace;color:var(--accent);font-weight:400}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.size-inputs{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}
+.size-input{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-family:'DM Mono',monospace;font-size:.88rem;color:var(--ink);width:100%;outline:none;transition:border-color .15s}
+.size-input:focus{border-color:var(--accent)}
+.lock-btn{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--ink2);cursor:pointer;margin-top:8px}
+.lock-btn input{accent-color:var(--accent)}
+
+.sidebar{display:flex;flex-direction:column;gap:16px}
+.info-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow)}
+.info-card-title{font-weight:700;font-size:.88rem;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.file-info-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bg2);font-size:.82rem}
+.file-info-row:last-child{border-bottom:none}
+.file-info-row .key{color:var(--ink2)}
+.file-info-row .val{font-family:'DM Mono',monospace;font-weight:500;font-size:.78rem;word-break:break-all;text-align:right;max-width:140px}
+.tips-list{list-style:none}
+.tips-list li{font-size:.82rem;color:var(--ink2);padding:5px 0;display:flex;gap:8px;line-height:1.5}
+.tips-list li::before{content:'→';color:var(--accent);flex-shrink:0}
+.preset-btn{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:.72rem;cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s}
+.preset-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+.how-section{padding:60px 40px;background:var(--white);border-top:1.5px solid var(--border)}
+.how-section h2{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:.06em;margin-bottom:8px}
+.how-section .sub{color:var(--ink2);font-size:.9rem;margin-bottom:40px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;max-width:900px}
+.step{display:flex;gap:16px}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--border);line-height:1;flex-shrink:0}
+.step-title{font-weight:700;font-size:.92rem;margin-bottom:4px}
+.step-desc{font-size:.82rem;color:var(--ink2);line-height:1.6}
+
+.faq-section{padding:60px 40px;max-width:720px;margin:0 auto}
+.faq-section h2{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:.06em;margin-bottom:32px}
+.faq-item{border-bottom:1.5px solid var(--border);padding:16px 0;cursor:pointer}
+.faq-q{font-weight:700;font-size:.9rem;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq-icon{color:var(--accent);font-size:1.1rem;transition:transform .2s;flex-shrink:0}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+.faq-a{font-size:.85rem;color:var(--ink2);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s}
+.faq-item.open .faq-a{max-height:300px;padding-top:10px}
+
+footer{background:var(--ink);color:var(--bg);padding:40px;display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.08em}
+.footer-links{display:flex;gap:20px;list-style:none;flex-wrap:wrap}
+.footer-links a{color:#888;font-size:.8rem;text-decoration:none;transition:color .15s}
+.footer-links a:hover{color:var(--bg)}
+.footer-copy{font-family:'DM Mono',monospace;font-size:.72rem;color:#555}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:8px;font-size:.85rem;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* 처리 오버레이 */
+.overlay{display:none;position:fixed;inset:0;background:rgba(247,245,240,.88);z-index:500;flex-direction:column;align-items:center;justify-content:center;gap:16px;backdrop-filter:blur(4px)}
+.overlay.show{display:flex}
+.spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.overlay-title{font-weight:700;font-size:1rem}
+.overlay-sub{color:var(--ink2);font-size:.82rem;text-align:center;max-width:280px;line-height:1.5}
+
+@media(max-width:900px){
+  .tool-layout{grid-template-columns:1fr}
+  .ad-rect{width:100%;height:90px}
+  nav{padding:0 16px}
+  nav ul{display:none}
+  .hero,.tool-section{padding:50px 20px 30px}
+  .ad-banner{margin:0 16px}
+  .preview-area.show{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar"><span>✦</span> 무료 무제한 · 설치 불필요 · 100% 브라우저 처리 &nbsp;|&nbsp; Free unlimited · No install · 100% in-browser</div>
+
+<nav>
+  <a href="#" class="logo"><div class="logo-icon">✂</div>PixelCut</a>
+  <ul>
+    <li><a href="#" onclick="showTool('bg');return false">배경 제거</a></li>
+    <li><a href="#" onclick="showTool('resize');return false">리사이즈</a></li>
+    <li><a href="#how">사용법</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('ko',this)">KO</button>
+    <button class="lang-btn" onclick="setLang('en',this)">EN</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-chip">✦ 무료 무제한 · 브라우저에서 바로</div>
+  <h1 class="ko-t">이미지 편집,<br><span class="blue">무료</span>로 바로</h1>
+  <h1 class="en-t" style="display:none">Edit Images<br><span class="blue">Free</span> & Instant</h1>
+  <p class="hero-sub ko-t">배경 제거, 크기 조절 — 완전 무료 무제한.<br>설치도 회원가입도 필요 없습니다.</p>
+  <p class="hero-sub en-t" style="display:none">Remove backgrounds, resize — completely free, unlimited.<br>No install, no signup needed.</p>
+  <div class="hero-tools">
+    <button class="tool-btn active" id="hero-bg" onclick="showTool('bg')">✂️ <span class="ko-t">배경 제거</span><span class="en-t" style="display:none">Remove BG</span></button>
+    <button class="tool-btn" id="hero-resize" onclick="showTool('resize')">📐 <span class="ko-t">리사이즈</span><span class="en-t" style="display:none">Resize</span></button>
+  </div>
+  <p class="hero-note">JPG · PNG · WebP · MAX 10MB</p>
+</div>
+
+<div class="ad-banner ad-slot">GOOGLE ADSENSE — 728×90</div>
+
+<!-- ══ 배경 제거 ══ -->
+<div class="tool-section active" id="tool-bg">
+  <div class="tool-layout">
+    <div class="tool-main">
+      <div class="tool-header">
+        <div class="tool-title">✂ <span class="ko-t">배경 제거</span><span class="en-t" style="display:none">BG Remover</span></div>
+        <div class="badge-live"><div class="live-dot"></div><span class="ko-t">무료 무제한</span><span class="en-t" style="display:none">Free unlimited</span></div>
+      </div>
+      <div class="tool-body">
+
+        <div class="free-badge">
+          ✅ <span class="ko-t">완전 무료 · 무제한 · 서버 전송 없음 — 모든 처리가 브라우저에서만 이루어집니다</span>
+          <span class="en-t" style="display:none">100% Free · Unlimited · No server upload — all processing happens in your browser</span>
+        </div>
+
+        <div class="dropzone" id="bg-dropzone">
+          <input type="file" accept="image/jpeg,image/png,image/webp" id="bg-input" onchange="loadBgImage(this)">
+          <div class="drop-icon">🖼️</div>
+          <div class="drop-title ko-t">이미지를 드래그하거나 클릭해서 업로드</div>
+          <div class="drop-title en-t" style="display:none">Drag & drop or click to upload</div>
+          <div class="drop-sub ko-t">AI가 배경을 자동으로 제거합니다 (최초 실행 시 모델 다운로드 약 10초)</div>
+          <div class="drop-sub en-t" style="display:none">AI removes background automatically (first run ~10s for model download)</div>
+          <div class="drop-formats">JPG · PNG · WebP · MAX 10MB</div>
+        </div>
+
+        <div class="preview-area" id="bg-preview">
+          <div class="preview-box">
+            <div class="preview-label">
+              <span class="ko-t">원본</span><span class="en-t" style="display:none">Original</span>
+              <span id="bg-dim1" style="font-size:.7rem;color:#aaa"></span>
+            </div>
+            <div class="preview-img-wrap"><img id="bg-orig" src="" alt="original"></div>
+          </div>
+          <div class="preview-box">
+            <div class="preview-label">
+              <span class="ko-t">배경 제거</span><span class="en-t" style="display:none">Result</span>
+              <span id="bg-dim2" style="font-size:.7rem;color:#aaa"></span>
+            </div>
+            <div class="preview-img-wrap checker" id="bg-result-wrap">
+              <span id="bg-placeholder" style="color:#ccc;font-size:.78rem;font-family:'DM Mono',monospace" class="ko-t">처리 후 표시</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-wrap" id="bg-prog">
+          <div class="progress-bar-bg"><div class="progress-bar-fill" id="bg-bar"></div></div>
+          <div class="progress-text" id="bg-prog-text">준비 중...</div>
+        </div>
+
+        <button class="btn-process" id="bg-btn" onclick="processBg()" disabled>
+          ✂ <span class="ko-t">배경 제거 시작</span><span class="en-t" style="display:none">Remove Background</span>
+        </button>
+        <button class="btn-dl" id="bg-dl" onclick="downloadBg()">
+          ⬇ <span class="ko-t">PNG 다운로드</span><span class="en-t" style="display:none">Download PNG</span>
+        </button>
+        <button class="btn-reset show" id="bg-reset" onclick="resetBg()" style="display:none">
+          ↺ <span class="ko-t">다른 이미지 선택</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="info-card">
+        <div class="info-card-title">📄 <span class="ko-t">파일 정보</span></div>
+        <div class="file-info-row"><span class="key ko-t">파일명</span><span class="val" id="bg-fname">—</span></div>
+        <div class="file-info-row"><span class="key ko-t">크기</span><span class="val" id="bg-fsize">—</span></div>
+        <div class="file-info-row"><span class="key ko-t">해상도</span><span class="val" id="bg-fdim">—</span></div>
+        <div class="file-info-row"><span class="key ko-t">형식</span><span class="val" id="bg-ftype">—</span></div>
+      </div>
+      <div class="ad-slot ad-rect">ADSENSE 300×250</div>
+      <div class="info-card">
+        <div class="info-card-title">💡 팁</div>
+        <ul class="tips-list">
+          <li class="ko-t">인물, 제품, 동물 사진에 최적</li>
+          <li class="ko-t">배경이 단순할수록 더 정확함</li>
+          <li class="ko-t">결과는 PNG(투명 배경)로 저장</li>
+          <li class="ko-t">최초 실행 시 AI 모델 로딩 약 10~30초</li>
+          <li class="en-t" style="display:none">Best for people, products, animals</li>
+          <li class="en-t" style="display:none">Simpler backgrounds = better results</li>
+          <li class="en-t" style="display:none">Saves as PNG with transparent background</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 리사이즈 ══ -->
+<div class="tool-section" id="tool-resize">
+  <div class="tool-layout">
+    <div class="tool-main">
+      <div class="tool-header">
+        <div class="tool-title">📐 <span class="ko-t">이미지 리사이즈</span><span class="en-t" style="display:none">Image Resizer</span></div>
+        <div class="badge-live"><div class="live-dot"></div><span class="ko-t">즉시 처리</span><span class="en-t" style="display:none">Instant</span></div>
+      </div>
+      <div class="tool-body">
+
+        <div class="free-badge">
+          ✅ <span class="ko-t">완전 무료 · 무제한 · 100% 브라우저 처리</span>
+          <span class="en-t" style="display:none">100% Free · Unlimited · Browser-only</span>
+        </div>
+
+        <div class="dropzone" id="rs-dropzone">
+          <input type="file" accept="image/*" id="rs-input" onchange="loadRsImage(this)">
+          <div class="drop-icon">📁</div>
+          <div class="drop-title ko-t">이미지를 드래그하거나 클릭</div>
+          <div class="drop-title en-t" style="display:none">Drag & drop or click</div>
+          <div class="drop-sub ko-t">원하는 크기로 즉시 변환</div>
+          <div class="drop-formats">JPG · PNG · WebP</div>
+        </div>
+
+        <div class="preview-area" id="rs-preview">
+          <div class="preview-box">
+            <div class="preview-label"><span class="ko-t">원본</span><span id="rs-orig-lbl" style="font-size:.7rem;color:#aaa"></span></div>
+            <div class="preview-img-wrap"><img id="rs-orig" src="" alt=""></div>
+          </div>
+          <div class="preview-box">
+            <div class="preview-label"><span class="ko-t">결과</span><span id="rs-res-lbl" style="font-size:.7rem;color:var(--accent);font-family:'DM Mono',monospace"></span></div>
+            <div class="preview-img-wrap">
+              <img id="rs-res" src="" alt="" style="display:none;max-width:100%;max-height:200px;object-fit:contain">
+              <span id="rs-placeholder" style="color:#ccc;font-size:.78rem;font-family:'DM Mono',monospace" class="ko-t">설정 후 처리</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls" id="rs-controls" style="display:none">
+          <div style="margin-bottom:16px;border-bottom:1.5px solid var(--border);padding-bottom:16px">
+            <div style="font-weight:700;font-size:.85rem;margin-bottom:10px" class="ko-t">📐 출력 크기</div>
+            <div class="size-inputs">
+              <div>
+                <div style="font-size:.7rem;color:var(--ink2);margin-bottom:4px;font-family:'DM Mono',monospace">WIDTH (px)</div>
+                <input type="number" class="size-input" id="rs-w" oninput="onWChange()" min="1" max="8000">
+              </div>
+              <div style="text-align:center;color:var(--ink2)">×</div>
+              <div>
+                <div style="font-size:.7rem;color:var(--ink2);margin-bottom:4px;font-family:'DM Mono',monospace">HEIGHT (px)</div>
+                <input type="number" class="size-input" id="rs-h" oninput="onHChange()" min="1" max="8000">
+              </div>
+            </div>
+            <label class="lock-btn"><input type="checkbox" id="rs-lock" checked> <span class="ko-t">비율 유지 (권장)</span></label>
+          </div>
+          <div class="control-group">
+            <div class="control-label"><span>🎨 <span class="ko-t">품질</span></span><span id="q-val">92%</span></div>
+            <input type="range" min="60" max="100" value="92" id="rs-quality" oninput="document.getElementById('q-val').textContent=this.value+'%'">
+          </div>
+          <div class="control-group">
+            <div class="control-label ko-t">💾 저장 형식</div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:5px;font-size:.83rem;cursor:pointer"><input type="radio" name="rs-fmt" value="jpeg" checked style="accent-color:var(--accent)"> JPG</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:.83rem;cursor:pointer"><input type="radio" name="rs-fmt" value="png" style="accent-color:var(--accent)"> PNG</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:.83rem;cursor:pointer"><input type="radio" name="rs-fmt" value="webp" style="accent-color:var(--accent)"> WebP</label>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-process" id="rs-btn" onclick="processResize()" disabled>
+          📐 <span class="ko-t">리사이즈 시작</span><span class="en-t" style="display:none">Resize Now</span>
+        </button>
+        <button class="btn-dl" id="rs-dl" onclick="downloadRs()">
+          ⬇ <span class="ko-t">다운로드</span><span class="en-t" style="display:none">Download</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="info-card">
+        <div class="info-card-title">📄 <span class="ko-t">파일 정보</span></div>
+        <div class="file-info-row"><span class="key">Width</span><span class="val" id="rs-iw">—</span></div>
+        <div class="file-info-row"><span class="key">Height</span><span class="val" id="rs-ih">—</span></div>
+        <div class="file-info-row"><span class="key ko-t">파일크기</span><span class="val" id="rs-is">—</span></div>
+        <div class="file-info-row"><span class="key ko-t">형식</span><span class="val" id="rs-it">—</span></div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title ko-t">🖼️ 자주 쓰는 크기</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <button class="preset-btn" onclick="setPreset(1920,1080)">FHD 1920×1080</button>
+          <button class="preset-btn" onclick="setPreset(1280,720)">HD 1280×720</button>
+          <button class="preset-btn" onclick="setPreset(1080,1080)">IG 1080×1080</button>
+          <button class="preset-btn" onclick="setPreset(1200,630)">OG 1200×630</button>
+          <button class="preset-btn" onclick="setPreset(800,600)">800×600</button>
+          <button class="preset-btn" onclick="setPreset(400,400)">썸네일 400×400</button>
+        </div>
+      </div>
+      <div class="ad-slot ad-rect">ADSENSE 300×250</div>
+    </div>
+  </div>
+</div>
+
+<div class="how-section" id="how">
+  <h2 class="ko-t">사용 방법</h2>
+  <p class="sub ko-t">3단계면 끝납니다</p>
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><div><div class="step-title ko-t">이미지 업로드</div><div class="step-desc ko-t">JPG, PNG, WebP를 드래그하거나 클릭해서 선택하세요.</div></div></div>
+    <div class="step"><div class="step-num">02</div><div><div class="step-title ko-t">처리 실행</div><div class="step-desc ko-t">버튼 하나로 배경 제거 또는 리사이즈. 모든 처리는 브라우저에서만 이루어집니다.</div></div></div>
+    <div class="step"><div class="step-num">03</div><div><div class="step-title ko-t">다운로드</div><div class="step-desc ko-t">결과를 바로 저장. 서버에 아무것도 남지 않습니다.</div></div></div>
+    <div class="step"><div class="step-num">04</div><div><div class="step-title ko-t">완전 무료 무제한</div><div class="step-desc ko-t">회원가입도 결제도 API 키도 필요 없습니다.</div></div></div>
+  </div>
+</div>
+
+<div style="padding:0 40px 40px;background:var(--white)">
+  <div class="ad-slot" style="height:90px">GOOGLE ADSENSE — 728×90</div>
+</div>
+
+<div class="faq-section" id="faq">
+  <h2 class="ko-t">자주 묻는 질문</h2>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>정말 무료인가요? API 키가 필요 없나요?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">네, 완전히 무료입니다. API 키나 회원가입이 전혀 필요 없습니다. @imgly/background-removal 오픈소스 AI 모델을 브라우저에서 직접 실행합니다.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>이미지가 서버에 저장되나요?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">아니요. 모든 처리는 100% 브라우저 안에서만 이루어집니다. 이미지가 외부 서버로 전송되지 않습니다.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>처음 실행할 때 왜 느린가요?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">최초 실행 시 AI 모델 파일(약 50MB)을 다운로드합니다. 이후에는 브라우저에 캐시되어 빠르게 실행됩니다.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>지원하는 파일 형식은?</span><span class="faq-icon">+</span></div>
+    <div class="faq-a">배경 제거는 JPG, PNG, WebP (최대 10MB), 리사이즈는 JPG, PNG, WebP를 지원합니다.</div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">PixelCut</div>
+  <ul class="footer-links">
+    <li><a href="#">소개 / About</a></li>
+    <li><a href="#">광고 문의 / Advertise</a></li>
+    <li><a href="#">개인정보처리방침</a></li>
+    <li><a href="#">이용약관</a></li>
+  </ul>
+  <div class="footer-copy">© 2025 PixelCut</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- 처리 오버레이 -->
+<div class="overlay" id="overlay">
+  <div class="spinner"></div>
+  <div class="overlay-title ko-t" id="overlay-title">AI 모델 로딩 중...</div>
+  <div class="overlay-sub ko-t" id="overlay-sub">최초 실행 시 약 10~30초가 소요됩니다.<br>이후에는 빠르게 처리됩니다.</div>
+</div>
+
+<!-- ── 핵심: importmap으로 ESM 라이브러리 안정적으로 로드 ── -->
+<script type="importmap">
+{
+  "imports": {
+    "@imgly/background-removal": "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/background-removal.js"
+  }
+}
+</script>
+
+<script type="module">
+import { removeBackground, preload } from 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/background-removal.js';
+
+const CONFIG = {
+  publicPath: 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/',
+  debug: false,
+};
+
+// 전역 노출
+window._removeBg = async (file, onProgress) => {
+  onProgress(10, '모델 불러오는 중...');
+  const blob = await removeBackground(file, {
+    ...CONFIG,
+    progress: (key, cur, total) => {
+      if (total > 0) {
+        const pct = Math.round(10 + (cur / total) * 85);
+        const msg = cur < total * 0.3 ? '모델 로딩 중 (최초 1회)...'
+          : cur < total * 0.7 ? 'AI가 배경을 분석하는 중...'
+          : '마무리 처리 중...';
+        onProgress(pct, msg);
+      }
+    }
+  });
+  onProgress(100, '✅ 완료!');
+  return blob;
+};
+
+window._bgLibReady = true;
+console.log('✅ background-removal 라이브러리 로드 완료');
+</script>
+
+<script>
+// ── 상태 ──
+var bgFile = null, bgBlob = null;
+var rsFile = null, rsResultUrl = null, rsOrigW = 0, rsOrigH = 0;
+var lang = 'ko';
+
+// ── 유틸 ──
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3200);
+}
+function fmtBytes(b) {
+  if (b < 1024) return b + 'B';
+  if (b < 1048576) return (b/1024).toFixed(1) + 'KB';
+  return (b/1048576).toFixed(1) + 'MB';
+}
+function setBar(pct, msg) {
+  document.getElementById('bg-bar').style.width = pct + '%';
+  document.getElementById('bg-prog-text').textContent = msg;
+}
+function showOverlay(title, sub) {
+  document.getElementById('overlay-title').textContent = title || 'AI 처리 중...';
+  document.getElementById('overlay-sub').textContent = sub || '';
+  document.getElementById('overlay').classList.add('show');
+}
+function hideOverlay() {
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ── 언어 ──
+function setLang(l, btn) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.ko-t').forEach(function(el){ el.style.display = l==='ko'?'':'none'; });
+  document.querySelectorAll('.en-t').forEach(function(el){ el.style.display = l==='en'?'':'none'; });
+}
+
+// ── 탭 전환 ──
+function showTool(tool) {
+  document.querySelectorAll('.tool-section').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('tool-'+tool).classList.add('active');
+  document.getElementById('hero-bg').classList.toggle('active', tool==='bg');
+  document.getElementById('hero-resize').classList.toggle('active', tool==='resize');
+}
+
+// ══ 배경 제거 ══
+function loadBgImage(input) {
+  var file = input.files[0];
+  if (!file) return;
+  if (file.size > 10*1024*1024) { toast('파일이 너무 큽니다 (최대 10MB)'); return; }
+  bgFile = file;
+  var url = URL.createObjectURL(file);
+  var img = document.getElementById('bg-orig');
+  img.onload = function() {
+    document.getElementById('bg-fname').textContent = file.name.length>18 ? file.name.slice(0,16)+'…' : file.name;
+    document.getElementById('bg-fsize').textContent = fmtBytes(file.size);
+    document.getElementById('bg-fdim').textContent = img.naturalWidth+'×'+img.naturalHeight;
+    document.getElementById('bg-ftype').textContent = file.type.split('/')[1].toUpperCase();
+    document.getElementById('bg-dim1').textContent = img.naturalWidth+'×'+img.naturalHeight;
+  };
+  img.src = url;
+  document.getElementById('bg-preview').classList.add('show');
+  document.getElementById('bg-dropzone').style.display = 'none';
+  document.getElementById('bg-btn').disabled = false;
+  bgBlob = null;
+  document.getElementById('bg-dl').classList.remove('show');
+  document.getElementById('bg-reset').style.display = 'none';
+  document.getElementById('bg-placeholder').style.display = '';
+  document.getElementById('bg-dim2').textContent = '';
+  // 이전 결과 이미지 제거
+  var wrap = document.getElementById('bg-result-wrap');
+  var old = wrap.querySelector('img');
+  if (old) old.remove();
+}
+
+async function processBg() {
+  if (!bgFile) return;
+  if (!window._bgLibReady) {
+    toast('⏳ AI 라이브러리 로딩 중입니다. 잠시 후 다시 눌러주세요.');
+    return;
+  }
+
+  document.getElementById('bg-btn').disabled = true;
+  document.getElementById('bg-prog').classList.add('show');
+  showOverlay('AI가 배경을 제거하는 중...', '최초 실행 시 약 10~30초 소요됩니다.\n이후에는 빠르게 처리됩니다.');
+
+  try {
+    bgBlob = await window._removeBg(bgFile, function(pct, msg) {
+      setBar(pct, msg);
+    });
+
+    var resultUrl = URL.createObjectURL(bgBlob);
+    var wrap = document.getElementById('bg-result-wrap');
+    document.getElementById('bg-placeholder').style.display = 'none';
+    var rImg = new Image();
+    rImg.style.cssText = 'max-width:100%;max-height:200px;object-fit:contain;border-radius:4px';
+    rImg.onload = function() {
+      document.getElementById('bg-dim2').textContent = rImg.naturalWidth+'×'+rImg.naturalHeight;
+    };
+    rImg.src = resultUrl;
+    wrap.appendChild(rImg);
+
+    document.getElementById('bg-dl').classList.add('show');
+    document.getElementById('bg-reset').style.display = 'block';
+    toast('✅ 배경 제거 완료!');
+  } catch(e) {
+    console.error(e);
+    toast('❌ 오류: ' + e.message);
+    document.getElementById('bg-btn').disabled = false;
+  } finally {
+    hideOverlay();
+  }
+}
+
+function downloadBg() {
+  if (!bgBlob) return;
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(bgBlob);
+  a.download = (bgFile ? bgFile.name.replace(/\.[^.]+$/,'') : 'image') + '_nobg.png';
+  a.click();
+  toast('⬇ 다운로드 시작!');
+}
+
+function resetBg() {
+  bgFile = null; bgBlob = null;
+  document.getElementById('bg-input').value = '';
+  document.getElementById('bg-preview').classList.remove('show');
+  document.getElementById('bg-dropzone').style.display = '';
+  document.getElementById('bg-btn').disabled = true;
+  document.getElementById('bg-dl').classList.remove('show');
+  document.getElementById('bg-reset').style.display = 'none';
+  document.getElementById('bg-prog').classList.remove('show');
+  ['bg-fname','bg-fsize','bg-fdim','bg-ftype'].forEach(function(id){
+    document.getElementById(id).textContent = '—';
+  });
+}
+
+// ══ 리사이즈 ══
+function loadRsImage(input) {
+  var file = input.files[0];
+  if (!file) return;
+  rsFile = file;
+  var url = URL.createObjectURL(file);
+  var img = document.getElementById('rs-orig');
+  img.onload = function() {
+    rsOrigW = img.naturalWidth; rsOrigH = img.naturalHeight;
+    document.getElementById('rs-iw').textContent = rsOrigW+'px';
+    document.getElementById('rs-ih').textContent = rsOrigH+'px';
+    document.getElementById('rs-is').textContent = fmtBytes(file.size);
+    document.getElementById('rs-it').textContent = file.type.split('/')[1].toUpperCase();
+    document.getElementById('rs-orig-lbl').textContent = rsOrigW+'×'+rsOrigH;
+    document.getElementById('rs-w').value = rsOrigW;
+    document.getElementById('rs-h').value = rsOrigH;
+    document.getElementById('rs-preview').classList.add('show');
+    document.getElementById('rs-controls').style.display = '';
+    document.getElementById('rs-btn').disabled = false;
+    document.getElementById('rs-dropzone').style.display = 'none';
+  };
+  img.src = url;
+  rsResultUrl = null;
+  document.getElementById('rs-dl').classList.remove('show');
+  document.getElementById('rs-res').style.display = 'none';
+  document.getElementById('rs-placeholder').style.display = '';
+}
+
+function onWChange() {
+  if (!document.getElementById('rs-lock').checked) return;
+  var w = parseInt(document.getElementById('rs-w').value);
+  if (rsOrigW && !isNaN(w)) document.getElementById('rs-h').value = Math.round(w * rsOrigH / rsOrigW);
+}
+function onHChange() {
+  if (!document.getElementById('rs-lock').checked) return;
+  var h = parseInt(document.getElementById('rs-h').value);
+  if (rsOrigH && !isNaN(h)) document.getElementById('rs-w').value = Math.round(h * rsOrigW / rsOrigH);
+}
+function setPreset(w, h) {
+  document.getElementById('rs-w').value = w;
+  document.getElementById('rs-h').value = h;
+}
+
+function processResize() {
+  if (!rsFile) return;
+  var w = parseInt(document.getElementById('rs-w').value);
+  var h = parseInt(document.getElementById('rs-h').value);
+  if (!w || !h || w < 1 || h < 1) { toast('크기를 입력해주세요'); return; }
+  if (w > 8000 || h > 8000) { toast('최대 8000px까지 지원합니다'); return; }
+
+  var quality = parseInt(document.getElementById('rs-quality').value) / 100;
+  var fmt = document.querySelector('input[name="rs-fmt"]:checked').value;
+  var mime = fmt==='jpeg' ? 'image/jpeg' : fmt==='png' ? 'image/png' : 'image/webp';
+
+  var img = document.getElementById('rs-orig');
+  var canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  var ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, 0, 0, w, h);
+  rsResultUrl = canvas.toDataURL(mime, quality);
+
+  var rImg = document.getElementById('rs-res');
+  rImg.src = rsResultUrl; rImg.style.display = '';
+  document.getElementById('rs-placeholder').style.display = 'none';
+  document.getElementById('rs-res-lbl').textContent = w+'×'+h;
+  document.getElementById('rs-dl').classList.add('show');
+  toast('✅ ' + w + '×' + h + '로 리사이즈 완료!');
+}
+
+function downloadRs() {
+  if (!rsResultUrl) return;
+  var fmt = document.querySelector('input[name="rs-fmt"]:checked').value;
+  var ext = fmt==='jpeg' ? 'jpg' : fmt;
+  var a = document.createElement('a');
+  a.href = rsResultUrl;
+  var w = document.getElementById('rs-w').value;
+  var h = document.getElementById('rs-h').value;
+  a.download = (rsFile ? rsFile.name.replace(/\.[^.]+$/,'') : 'image') + '_' + w + 'x' + h + '.' + ext;
+  a.click();
+  toast('⬇ 다운로드 시작!');
+}
+
+// ── 드래그앤드롭 ──
+['bg-dropzone','rs-dropzone'].forEach(function(id) {
+  var el = document.getElementById(id);
+  el.addEventListener('dragover', function(e) { e.preventDefault(); el.classList.add('dragover'); });
+  el.addEventListener('dragleave', function() { el.classList.remove('dragover'); });
+  el.addEventListener('drop', function(e) {
+    e.preventDefault(); el.classList.remove('dragover');
+    var file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    var inputId = id === 'bg-dropzone' ? 'bg-input' : 'rs-input';
+    var dt = new DataTransfer(); dt.items.add(file);
+    document.getElementById(inputId).files = dt.files;
+    if (id === 'bg-dropzone') loadBgImage(document.getElementById(inputId));
+    else loadRsImage(document.getElementById(inputId));
+  });
+});
+</script>
+</body>
+</html>
