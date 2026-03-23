@@ -164,6 +164,7 @@ footer{background:var(--ink);color:var(--bg);padding:36px 40px;display:flex;flex
 </head>
 <body>
 
+<!-- 숨겨진 file inputs (드롭존 밖에 위치) -->
 <input type="file" id="cp-input" accept="image/*" multiple style="display:none" onchange="var _f=Array.from(this.files); this.value=''; cpAdd(_f);">
 <input type="file" id="rs-input" accept="image/*" style="display:none" onchange="var _f=this.files[0]; this.value=''; onRsFile(_f);">
 <input type="file" id="pdf-input" accept="image/*" multiple style="display:none" onchange="var _f=Array.from(this.files); this.value=''; pdfAdd(_f);">
@@ -194,6 +195,7 @@ footer{background:var(--ink);color:var(--bg);padding:36px 40px;display:flex;flex
 
 <div class="ad-top ad">GOOGLE ADSENSE — 728×90</div>
 
+<!-- ══ 압축 ══ -->
 <div class="tool-section on" id="tool-compress">
   <div class="layout">
     <div class="card">
@@ -264,6 +266,7 @@ footer{background:var(--ink);color:var(--bg);padding:36px 40px;display:flex;flex
   </div>
 </div>
 
+<!-- ══ 리사이즈 ══ -->
 <div class="tool-section" id="tool-resize">
   <div class="layout">
     <div class="card">
@@ -350,6 +353,7 @@ footer{background:var(--ink);color:var(--bg);padding:36px 40px;display:flex;flex
   </div>
 </div>
 
+<!-- ══ PDF ══ -->
 <div class="tool-section" id="tool-pdf">
   <div class="layout">
     <div class="card">
@@ -552,15 +556,9 @@ function setupDrop(zoneId, onFiles){
     zone.classList.remove('over');
     var fileList = e.dataTransfer.files;
     var files = [];
-    
-    // ★ 수정된 부분: File 객체를 억지로 복제하지 않고 그대로 사용합니다.
     for(var i = 0; i < fileList.length; i++){
-      var f = fileList[i];
-      if(f.type.startsWith('image/')){
-        files.push(f);
-      }
+      if(fileList[i].type.startsWith('image/')) files.push(fileList[i]);
     }
-    
     if(files.length > 0){
       onFiles(files);
     } else {
